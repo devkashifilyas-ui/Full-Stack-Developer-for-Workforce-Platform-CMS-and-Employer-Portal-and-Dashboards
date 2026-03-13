@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkConnect — Workforce Platform Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;font-size:14px}
+:root{--bg:#ffffff;--bg2:#f5f5f3;--bg3:#ebebea;--text:#1a1a18;--text2:#6b6b68;--text3:#9b9b98;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--green:#1D9E75;--green-bg:#E1F5EE;--green-dark:#085041;--blue-bg:#E6F1FB;--blue-text:#0C447C;--amber-bg:#FAEEDA;--amber-text:#633806;--gray-bg:#F1EFE8;--gray-text:#2C2C2A;--red-bg:#FCEBEB;--red-text:#501313;--r-md:8px;--r-lg:12px}
+.app{min-height:100vh;background:var(--bg2)}
+.topbar{height:52px;background:var(--bg);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:10}
+.topbar-brand{font-size:15px;font-weight:500}
+.topbar-brand span{color:var(--green)}
+.tab-bar{display:flex;gap:4px;flex:1;overflow-x:auto}
+.tab{padding:6px 12px;border-radius:var(--r-md);font-size:13px;cursor:pointer;color:var(--text2);border:none;background:transparent;white-space:nowrap}
+.tab.active{background:var(--bg3);color:var(--text);font-weight:500}
+.role-badge{font-size:11px;padding:3px 8px;border-radius:var(--r-md);background:var(--green-bg);color:var(--green-dark);cursor:pointer;border:none;white-space:nowrap;font-family:inherit}
+.screen{padding:20px;display:none}
+.screen.active{display:block}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg3);border-radius:var(--r-md);padding:14px}
+.stat-label{font-size:12px;color:var(--text2);margin-bottom:6px}
+.stat-val{font-size:24px;font-weight:500}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:500;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.hero{background:linear-gradient(135deg,#085041 0%,#0F6E56 60%,#1D9E75 100%);color:white;border-radius:var(--r-lg);padding:40px 32px;margin-bottom:20px}
+.hero h1{font-size:28px;font-weight:500;margin-bottom:8px;color:white}
+.hero p{font-size:15px;opacity:.85;margin-bottom:20px;color:white}
+.pathway-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+.pathway-card{background:rgba(255,255,255,0.12);border-radius:var(--r-md);padding:14px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.2)}
+.pathway-card:hover{background:rgba(255,255,255,0.2)}
+.pathway-card h3{font-size:13px;font-weight:500;color:white;margin-bottom:4px}
+.pathway-card p{font-size:11px;color:rgba(255,255,255,0.75)}
+.hero-stats{display:flex;gap:24px;margin-top:16px}
+.hero-stat span{display:block;font-size:22px;font-weight:500;color:white}
+.hero-stat label{font-size:11px;color:rgba(255,255,255,0.7)}
+.intake-wrap{max-width:540px;margin:0 auto}
+.step-indicator{display:flex;gap:8px;margin-bottom:24px;align-items:center}
+.step-dot{width:28px;height:28px;border-radius:50%;border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--text2);background:var(--bg);flex-shrink:0}
+.step-dot.done{background:var(--green);color:white;border-color:var(--green)}
+.step-dot.active{background:var(--blue-bg);color:var(--blue-text);border-color:#378ADD}
+.step-line{flex:1;height:0.5px;background:var(--border)}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.choice-btn{padding:14px;border-radius:var(--r-md);border:0.5px solid var(--border2);background:var(--bg);cursor:pointer;text-align:left;font-size:13px;color:var(--text);font-family:inherit}
+.choice-btn.selected{border-color:var(--green);background:var(--green-bg);color:var(--green-dark)}
+.choice-btn h4{font-size:13px;font-weight:500;margin-bottom:2px}
+.choice-btn p{font-size:11px;color:var(--text2)}
+.choice-btn.selected p{color:#0F6E56}
+.intake-q{font-size:14px;font-weight:500;margin-bottom:6px}
+.intake-sub{font-size:13px;color:var(--text2);margin-bottom:16px}
+.btn-primary{padding:10px 20px;background:var(--green);color:white;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;font-family:inherit}
+.btn-secondary{padding:10px 20px;background:var(--bg);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--r-md);font-size:14px;cursor:pointer;font-family:inherit}
+.btn-row{display:flex;gap:10px;margin-top:20px}
+.success-screen{text-align:center;padding:40px 20px}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:8px 12px;font-weight:500;color:var(--text2);border-bottom:0.5px solid var(--border);font-size:12px}
+.data-table td{padding:10px 12px;border-bottom:0.5px solid var(--border)}
+.data-table tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--r-md);font-size:11px;font-weight:500}
+.badge-green{background:var(--green-bg);color:var(--green-dark)}
+.badge-blue{background:var(--blue-bg);color:var(--blue-text)}
+.badge-amber{background:var(--amber-bg);color:var(--amber-text)}
+.badge-gray{background:var(--gray-bg);color:var(--gray-text)}
+.badge-red{background:var(--red-bg);color:var(--red-text)}
+.bar-chart{display:flex;gap:8px;align-items:flex-end;height:120px;padding-bottom:20px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.bar{width:100%;background:var(--green);border-radius:4px 4px 0 0;min-height:4px}
+.bar-wrap-inner{flex:1;display:flex;align-items:flex-end;width:100%;position:relative}
+.chart-label{font-size:10px;color:var(--text2);margin-top:4px;text-align:center;width:100%}
+.bar-val{font-size:10px;color:var(--text2)}
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.pipeline-col{background:var(--bg3);border-radius:var(--r-md);padding:10px}
+.pipeline-col-title{font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.pipeline-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r-md);padding:8px;margin-bottom:6px;font-size:12px}
+.pipeline-card h5{font-weight:500;margin-bottom:2px}
+.pipeline-card p{color:var(--text2);font-size:11px}
+.arch-layer{border-radius:var(--r-md);border:0.5px solid var(--border);margin-bottom:8px;overflow:hidden}
+.arch-label{padding:8px 14px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px}
+.arch-label span{font-size:10px;font-weight:400;color:var(--text2)}
+.arch-items{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;font-size:11px}
+.arch-item{padding:3px 8px;border-radius:var(--r-md);background:var(--bg3);color:var(--text2)}
+.role-menu{position:absolute;right:12px;top:52px;background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--r-lg);padding:8px;z-index:20;min-width:160px;display:none}
+.role-menu.open{display:block}
+.role-option{padding:8px 12px;border-radius:var(--r-md);font-size:13px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.role-option:hover{background:var(--bg3)}
+.role-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.job-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.job-meta{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+input[type=text],select,textarea{width:100%;padding:8px 12px;border-radius:var(--r-md);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;margin-bottom:10px}
+label.field-label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
+.section-title{font-size:18px;font-weight:500;margin-bottom:16px}
+.export-row{display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px}
+@media(max-width:640px){.stats-row{grid-template-columns:1fr 1fr}.pathway-grid{grid-template-columns:1fr 1fr}.pipeline{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app" style="position:relative">
+<div class="topbar">
+  <div class="topbar-brand">Work<span>Connect</span></div>
+  <div class="tab-bar">
+    <button class="tab active" onclick="showScreen('home',this)">Homepage</button>
+    <button class="tab" onclick="showScreen('intake',this)">Intake flow</button>
+    <button class="tab" onclick="showScreen('dashboard',this)">Admin dashboard</button>
+    <button class="tab" onclick="showScreen('records',this)">Workforce records</button>
+    <button class="tab" onclick="showScreen('employer',this)">Employer portal</button>
+    <button class="tab" onclick="showScreen('jobs',this)">Job board</button>
+    <button class="tab" onclick="showScreen('reports',this)">Analytics</button>
+  </div>
+  <button class="role-badge" onclick="toggleRoleMenu()" id="roleBtn">Admin</button>
+  <div class="role-menu" id="roleMenu">
+    <div class="role-option" onclick="setRole('Admin','green')"><div class="role-dot" style="background:#1D9E75"></div>Admin</div>
+    <div class="role-option" onclick="setRole('Employer','blue')"><div class="role-dot" style="background:#378ADD"></div>Employer</div>
+    <div class="role-option" onclick="setRole('Participant','amber')"><div class="role-dot" style="background:#BA7517"></div>Participant</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="hero">
+    <div style="font-size:11px;opacity:.7;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Workforce Engagement Platform</div>
+    <h1>Your path forward starts here</h1>
+    <p>Connecting job seekers, employers, educators, and ambassadors in one unified workforce ecosystem.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span>2,847</span><label>Active participants</label></div>
+      <div class="hero-stat"><span>342</span><label>Employer partners</label></div>
+      <div class="hero-stat"><span>1,204</span><label>Placements this year</label></div>
+      <div class="hero-stat"><span>89%</span><label>Satisfaction rate</label></div>
+    </div>
+    <div class="pathway-grid">
+      <div class="pathway-card" onclick="showScreen('intake',document.querySelectorAll('.tab')[1])"><h3>Career pathways</h3><p>Explore roles, training, and next steps</p></div>
+      <div class="pathway-card" onclick="showScreen('employer',document.querySelectorAll('.tab')[4])"><h3>Employers</h3><p>Post jobs, find talent, track pipeline</p></div>
+      <div class="pathway-card"><h3>Educators</h3><p>Partner programs and curriculum alignment</p></div>
+      <div class="pathway-card"><h3>Ambassadors</h3><p>Become a community workforce advocate</p></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Recent participant activity</div>
+      <table class="data-table">
+        <tr><th>Name</th><th>Stage</th><th>Status</th></tr>
+        <tr><td>Maria Chen</td><td>Early career</td><td><span class="badge badge-green">Active</span></td></tr>
+        <tr><td>James Okafor</td><td>Mid-career</td><td><span class="badge badge-blue">Placed</span></td></tr>
+        <tr><td>Priya Singh</td><td>Student</td><td><span class="badge badge-amber">In intake</span></td></tr>
+        <tr><td>Devon Morris</td><td>Re-entry</td><td><span class="badge badge-green">Active</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Platform highlights</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--bg3);border-radius:var(--r-md)">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:18px">📋</div>
+          <div><div style="font-size:13px;font-weight:500">Structured intake</div><div style="font-size:12px;color:var(--text2)">Multi-step workforce onboarding</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--bg3);border-radius:var(--r-md)">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:18px">📊</div>
+          <div><div style="font-size:13px;font-weight:500">Real-time dashboards</div><div style="font-size:12px;color:var(--text2)">Pipeline, engagement, and placements</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--bg3);border-radius:var(--r-md)">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:var(--amber-bg);display:flex;align-items:center;justify-content:center;font-size:18px">🏢</div>
+          <div><div style="font-size:13px;font-weight:500">Employer portal</div><div style="font-size:12px;color:var(--text2)">Job posting and candidate workflows</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INTAKE -->
+<div class="screen" id="screen-intake">
+  <div class="intake-wrap">
+    <div class="section-title">Workforce intake</div>
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot1">1</div><div class="step-line"></div>
+      <div class="step-dot" id="dot2">2</div><div class="step-line"></div>
+      <div class="step-dot" id="dot3">3</div><div class="step-line"></div>
+      <div class="step-dot" id="dot4">4</div><div class="step-line"></div>
+      <div class="step-dot" id="dot5">5</div>
+    </div>
+    <div class="card">
+      <div id="step1">
+        <div class="intake-q">What best describes your current career stage?</div>
+        <div class="intake-sub">This helps us show you the most relevant pathways and resources.</div>
+        <div class="choice-grid">
+          <div class="choice-btn" onclick="selectChoice(this,'stage')"><h4>Student</h4><p>Currently enrolled in school or training</p></div>
+          <div class="choice-btn" onclick="selectChoice(this,'stage')"><h4>Early career</h4><p>0–3 years experience</p></div>
+          <div class="choice-btn" onclick="selectChoice(this,'stage')"><h4>Mid-career</h4><p>Seeking advancement or transition</p></div>
+          <div class="choice-btn" onclick="selectChoice(this,'stage')"><h4>Re-entry</h4><p>Returning to workforce after a gap</p></div>
+        </div>
+        <div id="studentExtra" style="display:none;padding:12px;background:var(--green-bg);border-radius:var(--r-md);margin-bottom:12px">
+          <div style="font-size:13px;font-weight:500;color:var(--green-dark);margin-bottom:8px">Education details</div>
+          <label class="field-label">Current institution</label><input type="text" placeholder="School or college name">
+          <label class="field-label">Expected graduation</label><input type="text" placeholder="Year">
+        </div>
+        <div class="btn-row"><button class="btn-primary" onclick="nextStep(2)">Continue</button></div>
+      </div>
+      <div id="step2" style="display:none">
+        <div class="intake-q">Which career areas interest you most?</div>
+        <div class="intake-sub">Select all that apply.</div>
+        <div class="choice-grid">
+          <div class="choice-btn" onclick="toggleChoice(this)"><h4>Technology</h4><p>Software, IT, data</p></div>
+          <div class="choice-btn" onclick="toggleChoice(this)"><h4>Healthcare</h4><p>Clinical and support roles</p></div>
+          <div class="choice-btn" onclick="toggleChoice(this)"><h4>Manufacturing</h4><p>Skilled trades and production</p></div>
+          <div class="choice-btn" onclick="toggleChoice(this)"><h4>Business</h4><p>Operations, finance, HR</p></div>
+          <div class="choice-btn" onclick="toggleChoice(this)"><h4>Education</h4><p>Teaching and training roles</p></div>
+          <div class="choice-btn" onclick="toggleChoice(this)"><h4>Green energy</h4><p>Sustainability sector</p></div>
+        </div>
+        <div class="btn-row"><button class="btn-secondary" onclick="nextStep(1)">Back</button><button class="btn-primary" onclick="nextStep(3)">Continue</button></div>
+      </div>
+      <div id="step3" style="display:none">
+        <div class="intake-q">Have you participated in any workforce programs before?</div>
+        <div class="intake-sub">Helps us avoid duplicate outreach and understand your history.</div>
+        <div class="choice-grid">
+          <div class="choice-btn" onclick="selectChoice(this,'history')"><h4>No, first time</h4><p>New to workforce programs</p></div>
+          <div class="choice-btn" onclick="selectChoice(this,'history')"><h4>Yes, state program</h4><p>Previously enrolled in a state program</p></div>
+          <div class="choice-btn" onclick="selectChoice(this,'history')"><h4>Yes, local org</h4><p>Worked with a local workforce org</p></div>
+          <div class="choice-btn" onclick="selectChoice(this,'history')"><h4>Yes, employer-sponsored</h4><p>Completed employer training</p></div>
+        </div>
+        <div class="btn-row"><button class="btn-secondary" onclick="nextStep(2)">Back</button><button class="btn-primary" onclick="nextStep(4)">Continue</button></div>
+      </div>
+      <div id="step4" style="display:none">
+        <div class="intake-q">Where are you located?</div>
+        <div class="intake-sub">We use this to match you with regional employers and programs.</div>
+        <label class="field-label">Region</label>
+        <select><option>Select region</option><option>Northeast</option><option>Midwest</option><option>South</option><option>West</option></select>
+        <label class="field-label">State</label>
+        <select><option>Select state</option><option>California</option><option>Texas</option><option>New York</option><option>Florida</option><option>Illinois</option></select>
+        <label class="field-label">City or zip (optional)</label><input type="text" placeholder="City or ZIP code">
+        <div class="btn-row"><button class="btn-secondary" onclick="nextStep(3)">Back</button><button class="btn-primary" onclick="nextStep(5)">Continue</button></div>
+      </div>
+      <div id="step5" style="display:none">
+        <div class="intake-q">Communication permissions</div>
+        <div class="intake-sub">Choose how you'd like to be contacted by employers and program coordinators.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0">
+          <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:13px"><input type="checkbox" checked style="margin-top:2px;width:auto"> Email updates on job matches and program news</label>
+          <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:13px"><input type="checkbox" style="margin-top:2px;width:auto"> SMS notifications for urgent matches</label>
+          <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:13px"><input type="checkbox" checked style="margin-top:2px;width:auto"> Allow employers to view my profile</label>
+          <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:13px"><input type="checkbox" style="margin-top:2px;width:auto"> Share anonymized data for workforce research</label>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg3);border-radius:var(--r-md);font-size:12px;color:var(--text2)">Your data is stored securely and used only for workforce matching and program coordination. You may update preferences at any time.</div>
+        <div class="btn-row"><button class="btn-secondary" onclick="nextStep(4)">Back</button><button class="btn-primary" onclick="completeIntake()">Submit intake</button></div>
+      </div>
+      <div id="stepDone" style="display:none">
+        <div class="success-screen">
+          <div class="success-icon">✓</div>
+          <div style="font-size:18px;font-weight:500;margin-bottom:8px">Profile created</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:20px">Your intake record has been added to the workforce database. A coordinator will be in touch within 2 business days.</div>
+          <button class="btn-primary" onclick="resetIntake()">Start new intake</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="screen" id="screen-dashboard">
+  <div class="section-title">Admin dashboard</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Total participants</div><div class="stat-val">2,847</div><div class="stat-sub">+127 this month</div></div>
+    <div class="stat-card"><div class="stat-label">Active pipeline</div><div class="stat-val">634</div><div class="stat-sub">Across all stages</div></div>
+    <div class="stat-card"><div class="stat-label">Employer engagements</div><div class="stat-val">342</div><div class="stat-sub">89 active this month</div></div>
+    <div class="stat-card"><div class="stat-label">Placements (YTD)</div><div class="stat-val">1,204</div><div class="stat-sub">+18% vs last year</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">Engagement by region</div><div class="bar-chart" id="regionChart"></div></div>
+    <div class="card"><div class="card-title">Engagement by career stage</div><div class="bar-chart" id="stageChart"></div></div>
+  </div>
+  <div class="card"><div class="card-title">Participation trends (monthly)</div><div class="bar-chart" id="trendChart" style="height:100px"></div></div>
+</div>
+
+<!-- WORKFORCE RECORDS -->
+<div class="screen" id="screen-records">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div class="section-title" style="margin-bottom:0">Workforce records</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-secondary" onclick="exportCSV()" style="font-size:12px;padding:7px 14px">Export CSV</button>
+      <button class="btn-secondary" onclick="alert('Excel export — in production this triggers server-side XLSX generation.')" style="font-size:12px;padding:7px 14px">Export Excel</button>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Stage</th><th>Region</th><th>Interests</th><th>History</th><th>Status</th><th>Enrolled</th></tr></thead>
+      <tbody id="recordsTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- EMPLOYER PORTAL -->
+<div class="screen" id="screen-employer">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div class="section-title" style="margin-bottom:0">Employer portal — Acme Manufacturing Co.</div>
+    <button class="btn-primary" onclick="showJobForm()" style="font-size:13px;padding:8px 16px">+ Post job</button>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Active job listings</div><div class="stat-val">7</div></div>
+    <div class="stat-card"><div class="stat-label">Total applications</div><div class="stat-val">43</div></div>
+    <div class="stat-card"><div class="stat-label">In interview stage</div><div class="stat-val">8</div></div>
+    <div class="stat-card"><div class="stat-label">Placements</div><div class="stat-val">12</div></div>
+  </div>
+  <div id="jobFormWrap" style="display:none">
+    <div class="card">
+      <div class="card-title">New job posting</div>
+      <div class="grid2">
+        <div><label class="field-label">Job title</label><input type="text" placeholder="e.g. Production Technician"></div>
+        <div><label class="field-label">Location</label><input type="text" placeholder="City, State"></div>
+        <div><label class="field-label">Type</label><select><option>Full-time</option><option>Part-time</option><option>Contract</option></select></div>
+        <div><label class="field-label">Career stage</label><select><option>Entry level</option><option>Mid-career</option><option>Senior</option></select></div>
+      </div>
+      <label class="field-label">Description</label>
+      <textarea rows="3" placeholder="Role summary, requirements, benefits..."></textarea>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="submitJob()">Post listing</button>
+        <button class="btn-secondary" onclick="document.getElementById('jobFormWrap').style.display='none'">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Candidate pipeline</div>
+    <div class="pipeline" id="pipeline"></div>
+  </div>
+</div>
+
+<!-- JOB BOARD -->
+<div class="screen" id="screen-jobs">
+  <div style="display:flex;gap:12px;margin-bottom:16px;align-items:center">
+    <div class="section-title" style="margin-bottom:0;flex:1">Job board</div>
+    <select style="width:auto;margin-bottom:0"><option>All regions</option><option>Northeast</option><option>Midwest</option><option>South</option><option>West</option></select>
+    <select style="width:auto;margin-bottom:0"><option>All types</option><option>Full-time</option><option>Part-time</option><option>Contract</option></select>
+  </div>
+  <div id="jobBoard"></div>
+</div>
+
+<!-- ANALYTICS -->
+<div class="screen" id="screen-reports">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div class="section-title" style="margin-bottom:0">Analytics and reporting</div>
+    <button class="btn-secondary" onclick="exportCSV()" style="font-size:12px;padding:7px 14px">Export report CSV</button>
+  </div>
+  <div class="grid3">
+    <div class="stat-card">
+      <div class="stat-label">Placements by region</div>
+      <div style="margin-top:10px;font-size:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Northeast</span><span style="font-weight:500">387</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Midwest</span><span style="font-weight:500">312</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>South</span><span style="font-weight:500">298</span></div>
+        <div style="display:flex;justify-content:space-between"><span>West</span><span style="font-weight:500">207</span></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Placements by industry</div>
+      <div style="margin-top:10px;font-size:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Technology</span><span style="font-weight:500">341</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Healthcare</span><span style="font-weight:500">287</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Manufacturing</span><span style="font-weight:500">246</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Other</span><span style="font-weight:500">330</span></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Employer participation</div>
+      <div style="margin-top:10px;font-size:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>New employers</span><span style="font-weight:500">48</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Repeat employers</span><span style="font-weight:500">294</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Active this month</span><span style="font-weight:500">89</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Jobs posted (YTD)</span><span style="font-weight:500">1,847</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4px">
+    <div class="card-title">Architecture overview</div>
+    <div class="arch-layer" style="border-color:#9FE1CB">
+      <div class="arch-label" style="background:var(--green-bg);color:var(--green-dark)">CMS layer <span>WordPress + Gravity Forms</span></div>
+      <div class="arch-items"><span class="arch-item">Public website</span><span class="arch-item">Pathway pages</span><span class="arch-item">Educator content</span><span class="arch-item">Ambassador pages</span><span class="arch-item">Editorial admin</span></div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--text2);margin:4px 0">REST API integration layer</div>
+    <div class="arch-layer" style="border-color:#B5D4F4">
+      <div class="arch-label" style="background:var(--blue-bg);color:var(--blue-text)">Application layer <span>React + Node.js</span></div>
+      <div class="arch-items"><span class="arch-item">Auth (RBAC)</span><span class="arch-item">Intake orchestration</span><span class="arch-item">Employer portal</span><span class="arch-item">Admin dashboards</span><span class="arch-item">API gateway</span></div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--text2);margin:4px 0">Direct DB queries + ORM</div>
+    <div class="arch-layer" style="border-color:#FAC775">
+      <div class="arch-label" style="background:var(--amber-bg);color:var(--amber-text)">Workforce data layer <span>PostgreSQL</span></div>
+      <div class="arch-items"><span class="arch-item">WorkforceRecords</span><span class="arch-item">Employers</span><span class="arch-item">Jobs</span><span class="arch-item">Applications</span><span class="arch-item">EngagementHistory</span><span class="arch-item">RegionData</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <div style="flex:1;padding:10px;background:var(--bg3);border-radius:var(--r-md);font-size:12px">
+        <div style="font-weight:500;margin-bottom:4px">Multi-region ready</div>
+        <div style="color:var(--text2)">Region-scoped DB schema supports state-level admin and expansion without rebuild</div>
+      </div>
+      <div style="flex:1;padding:10px;background:var(--bg3);border-radius:var(--r-md);font-size:12px">
+        <div style="font-weight:500;margin-bottom:4px">CMS separated</div>
+        <div style="color:var(--text2)">Editorial content lives in WordPress; workforce data never touches CMS tables</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var workers=[
+  {name:'Maria Chen',stage:'Early career',region:'Northeast',interests:'Technology',history:'First time',status:'Active',enrolled:'Mar 2026'},
+  {name:'James Okafor',stage:'Mid-career',region:'Midwest',interests:'Manufacturing',history:'State program',status:'Placed',enrolled:'Jan 2026'},
+  {name:'Priya Singh',stage:'Student',region:'West',interests:'Healthcare',history:'First time',status:'In intake',enrolled:'Mar 2026'},
+  {name:'Devon Morris',stage:'Re-entry',region:'South',interests:'Business',history:'Local org',status:'Active',enrolled:'Feb 2026'},
+  {name:'Angela Torres',stage:'Early career',region:'Northeast',interests:'Technology',history:'First time',status:'Active',enrolled:'Mar 2026'},
+  {name:'Marcus Webb',stage:'Mid-career',region:'South',interests:'Green energy',history:'Employer-sponsored',status:'Placed',enrolled:'Dec 2025'},
+  {name:'Lisa Park',stage:'Student',region:'West',interests:'Business',history:'First time',status:'In intake',enrolled:'Mar 2026'},
+  {name:'Omar Hassan',stage:'Re-entry',region:'Midwest',interests:'Manufacturing',history:'State program',status:'Active',enrolled:'Feb 2026'},
+];
+var statusBadge={Active:'badge-green',Placed:'badge-blue','In intake':'badge-amber','In review':'badge-gray'};
+var pipelineData={Applied:[{name:'Priya Singh',role:'QA Analyst'},{name:'Omar Hassan',role:'Line Tech'}],Reviewed:[{name:'Lisa Park',role:'Operations Coord.'},{name:'Devon Morris',role:'Logistics'}],Interview:[{name:'Maria Chen',role:'Jr. Developer'},{name:'Angela Torres',role:'Data Analyst'}],Placement:[{name:'James Okafor',role:'Plant Manager'},{name:'Marcus Webb',role:'Energy Consultant'}]};
+var jobs=[
+  {title:'Production Technician',company:'Acme Manufacturing',region:'Midwest',type:'Full-time',stage:'Entry level'},
+  {title:'Jr. Software Developer',company:'TechBridge Inc.',region:'Northeast',type:'Full-time',stage:'Early career'},
+  {title:'Healthcare Navigator',company:'Regional Medical',region:'South',type:'Part-time',stage:'Entry level'},
+  {title:'Operations Coordinator',company:'Logistics Plus',region:'West',type:'Full-time',stage:'Mid-career'},
+  {title:'Sustainability Analyst',company:'Green Future Corp',region:'Northeast',type:'Contract',stage:'Mid-career'},
+  {title:'Data Entry Specialist',company:'Business Solutions LLC',region:'Midwest',type:'Part-time',stage:'Entry level'},
+];
+
+function showScreen(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  document.getElementById('roleMenu').classList.remove('open');
+  if(id==='records')renderRecords();
+  if(id==='employer')renderPipeline();
+  if(id==='jobs')renderJobs();
+  if(id==='dashboard')renderCharts();
+}
+
+function renderRecords(){
+  document.getElementById('recordsTable').innerHTML=workers.map(w=>`<tr><td style="font-weight:500">${w.name}</td><td>${w.stage}</td><td>${w.region}</td><td>${w.interests}</td><td>${w.history}</td><td><span class="badge ${statusBadge[w.status]||'badge-gray'}">${w.status}</span></td><td style="color:var(--text2)">${w.enrolled}</td></tr>`).join('');
+}
+
+function renderPipeline(){
+  document.getElementById('pipeline').innerHTML=Object.entries(pipelineData).map(([stage,cards])=>`<div class="pipeline-col"><div class="pipeline-col-title">${stage}</div>${cards.map(c=>`<div class="pipeline-card"><h5>${c.name}</h5><p>${c.role}</p></div>`).join('')}</div>`).join('');
+}
+
+function renderJobs(){
+  document.getElementById('jobBoard').innerHTML=jobs.map(j=>`<div class="job-card"><div><div style="font-weight:500;font-size:14px">${j.title}</div><div class="job-meta"><span class="badge badge-gray">${j.company}</span><span class="badge badge-blue">${j.region}</span><span class="badge badge-green">${j.type}</span><span class="badge badge-amber">${j.stage}</span></div></div><button class="btn-primary" onclick="showScreen('intake',document.querySelectorAll('.tab')[1])" style="font-size:12px;padding:8px 14px;white-space:nowrap">Apply now</button></div>`).join('');
+}
+
+function renderCharts(){
+  renderBarChart('regionChart',['NE','MW','South','West','SW'],[387,312,298,207,145],'#1D9E75');
+  renderBarChart('stageChart',['Student','Early','Mid','Re-entry'],[621,892,743,591],'#378ADD');
+  renderBarChart('trendChart',['Oct','Nov','Dec','Jan','Feb','Mar'],[187,203,178,245,231,263],'#BA7517');
+}
+
+function renderBarChart(id,labels,values,color){
+  var el=document.getElementById(id);if(!el)return;
+  var max=Math.max.apply(null,values);
+  el.innerHTML=labels.map((l,i)=>`<div class="bar-wrap"><div class="bar-val">${values[i]}</div><div class="bar-wrap-inner"><div class="bar" style="height:${Math.round(values[i]/max*100)}%;background:${color}"></div></div><div class="chart-label">${l}</div></div>`).join('');
+}
+
+function selectChoice(el,group){
+  el.closest('.choice-grid').querySelectorAll('.choice-btn[onclick*="selectChoice"]').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  if(group==='stage'){var txt=el.querySelector('h4').textContent;document.getElementById('studentExtra').style.display=txt==='Student'?'block':'none';}
+}
+function toggleChoice(el){el.classList.toggle('selected');}
+
+function nextStep(n){
+  for(var i=1;i<=5;i++){
+    var s=document.getElementById('step'+i);if(s)s.style.display=i===n?'block':'none';
+    var d=document.getElementById('dot'+i);if(d){d.classList.remove('active','done');if(i<n)d.classList.add('done');else if(i===n)d.classList.add('active');}
+  }
+}
+
+function completeIntake(){
+  for(var i=1;i<=5;i++){var s=document.getElementById('step'+i);if(s)s.style.display='none';var d=document.getElementById('dot'+i);if(d){d.classList.remove('active');d.classList.add('done');}}
+  document.getElementById('stepDone').style.display='block';
+}
+
+function resetIntake(){
+  document.getElementById('stepDone').style.display='none';
+  nextStep(1);
+  document.getElementById('dot1').classList.remove('done');
+  document.getElementById('dot1').classList.add('active');
+}
+
+function toggleRoleMenu(){document.getElementById('roleMenu').classList.toggle('open');}
+function setRole(r){document.getElementById('roleBtn').textContent=r;document.getElementById('roleMenu').classList.remove('open');}
+function showJobForm(){var f=document.getElementById('jobFormWrap');f.style.display=f.style.display==='none'?'block':'none';}
+function submitJob(){document.getElementById('jobFormWrap').style.display='none';alert('Job posting submitted for review.');}
+
+function exportCSV(){
+  var rows=[['Name','Stage','Region','Interests','History','Status','Enrolled']].concat(workers.map(w=>[w.name,w.stage,w.region,w.interests,w.history,w.status,w.enrolled]));
+  var csv=rows.map(r=>r.join(',')).join('\n');
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='workforce_records.csv';a.click();
+}
+
+document.addEventListener('click',function(e){var m=document.getElementById('roleMenu');var b=document.getElementById('roleBtn');if(!m.contains(e.target)&&e.target!==b)m.classList.remove('open');});
+renderCharts();
+</script>
+</body>
+</html>
