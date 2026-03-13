@@ -133,16 +133,3 @@ Program submissions
 Advanced analytics  
 Interactive regional maps  
 CRM and email automation integrations  
-
----
-
-## Author
-
-Kashif Ilyas  
-Senior Full Stack Engineer  
-
-Expertise  
-Full Stack Development  
-Platform Architecture  
-Dashboards and Portals  
-CMS + Application Systems
